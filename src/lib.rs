@@ -10,6 +10,10 @@
     feature(core_intrinsics)
 )]
 #![cfg_attr(feature = "panic-handler", feature(thread_local))]
+#![cfg_attr(
+    any(target_arch = "mips", target_arch = "mips64"),
+    feature(asm_experimental_arch)
+)]
 #![warn(rust_2018_idioms)]
 #![warn(unsafe_op_in_unsafe_fn)]
 #![no_std]
