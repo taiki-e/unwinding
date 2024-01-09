@@ -28,6 +28,11 @@ mod loongarch64;
 #[cfg(target_arch = "loongarch64")]
 pub use loongarch64::*;
 
+#[cfg(target_arch = "mips")]
+mod mips;
+#[cfg(target_arch = "mips")]
+pub use mips::*;
+
 #[cfg(not(any(
     target_arch = "x86_64",
     target_arch = "x86",
@@ -35,6 +40,7 @@ pub use loongarch64::*;
     target_arch = "riscv32",
     target_arch = "aarch64",
     target_arch = "loongarch64"
+    target_arch = "mips",
 )))]
 compile_error!("Current architecture is not supported");
 

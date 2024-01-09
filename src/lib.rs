@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+#![cfg_attr(target_arch = "mips", feature(asm_experimental_arch))]
 // We use `non_exhaustive_omitted_patterns_lint` which is a nightly lint.
 #![allow(unknown_lints)]
 #![cfg_attr(
