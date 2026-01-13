@@ -183,12 +183,13 @@ macro_rules! code {
     };
 }
 
-#[naked]
+#[unsafe(naked)]
 pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), ptr: *mut ()) {
     unsafe {
         #[cfg(target_feature = "single-float")]
-        asm!(
+        core::arch::naked_asm!(
             "
+            .set push
             .set noreorder
             .set nomacro
             .set noat
@@ -208,15 +209,13 @@ pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), p
             add $sp, $sp, 0x110
             jr $ra
             nop
-            .set at
-            .set macro
-            .set reorder
+            .set pop
             ",
-            options(noreturn)
         );
         #[cfg(not(target_feature = "single-float"))]
-        asm!(
+        core::arch::naked_asm!(
             "
+            .set push
             .set noreorder
             .set nomacro
             .set noat
@@ -235,11 +234,8 @@ pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), p
             add $sp, $sp, 0x90
             jr $ra
             nop
-            .set at
-            .set macro
-            .set reorder
+            .set pop
             ",
-            options(noreturn)
         );
     }
 }
@@ -249,6 +245,7 @@ pub unsafe extern "C" fn restore_context(ctx: &Context) -> ! {
         #[cfg(target_feature = "single-float")]
         asm!(
             "
+            .set push
             .set noreorder
             .set nomacro
             .set noat
@@ -259,9 +256,7 @@ pub unsafe extern "C" fn restore_context(ctx: &Context) -> ! {
             lw $a0, 0x10($a0)
             jr $ra
             nop
-            .set at
-            .set macro
-            .set reorder
+            .set pop
             ",
             in("$4") ctx,
             options(noreturn)
@@ -269,6 +264,7 @@ pub unsafe extern "C" fn restore_context(ctx: &Context) -> ! {
         #[cfg(not(target_feature = "single-float"))]
         asm!(
             "
+            .set push
             .set noreorder
             .set nomacro
             .set noat
@@ -278,9 +274,7 @@ pub unsafe extern "C" fn restore_context(ctx: &Context) -> ! {
             lw $a0, 0x10($a0)
             jr $ra
             nop
-            .set at
-            .set macro
-            .set reorder
+            .set pop
             ",
             in("$4") ctx,
             options(noreturn)
