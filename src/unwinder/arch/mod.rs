@@ -28,9 +28,9 @@ mod loongarch64;
 #[cfg(target_arch = "loongarch64")]
 pub use loongarch64::*;
 
-#[cfg(target_arch = "mips")]
+#[cfg(any(target_arch = "mips", target_arch = "mips32r6"))]
 mod mips;
-#[cfg(target_arch = "mips")]
+#[cfg(any(target_arch = "mips", target_arch = "mips32r6"))]
 pub use mips::*;
 
 #[cfg(not(any(
@@ -39,8 +39,9 @@ pub use mips::*;
     target_arch = "riscv64",
     target_arch = "riscv32",
     target_arch = "aarch64",
-    target_arch = "loongarch64"
+    target_arch = "loongarch64",
     target_arch = "mips",
+    target_arch = "mips32r6",
 )))]
 compile_error!("Current architecture is not supported");
 

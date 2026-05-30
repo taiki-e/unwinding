@@ -1,7 +1,7 @@
 use core::arch::asm;
 use core::fmt;
 use core::ops;
-use gimli::{Register, MIPS};
+use gimli::{MIPS, Register};
 
 // Match DWARF_FRAME_REGISTERS in libgcc
 pub const MAX_REG_RULES: usize = 188;
@@ -53,6 +53,19 @@ impl ops::IndexMut<gimli::Register> for Context {
             _ => unimplemented!(),
         }
     }
+}
+
+#[cfg(target_arch = "mips")]
+macro_rules! addi {
+    ($operands:tt) => {
+        concat!("addi ", $operands)
+    };
+}
+#[cfg(target_arch = "mips32r6")]
+macro_rules! addi {
+    ($operands:tt) => {
+        concat!("addiu ", $operands)
+    };
 }
 
 macro_rules! code {
@@ -194,7 +207,10 @@ pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), p
             .set nomacro
             .set noat
             move $t0, $sp
-            add $sp, $sp, -0x110
+            ",
+            #[cfg(target_arch = "mips")]
+            addi!("$sp, $sp, -0x110"),
+            "
             sw $ra, 0x100($sp)
             ",
             code!(save_gp),
@@ -206,7 +222,10 @@ pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), p
             jalr $t9
             nop
             lw $ra, 0x100($sp)
-            add $sp, $sp, 0x110
+            ",
+            #[cfg(target_arch = "mips")]
+            addi!("$sp, $sp, 0x110"),
+            "
             jr $ra
             nop
             .set pop
@@ -220,7 +239,10 @@ pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), p
             .set nomacro
             .set noat
             move $t0, $sp
-            add $sp, $sp, -0x90
+            ",
+            #[cfg(target_arch = "mips")]
+            addi!("$sp, $sp, -0x90"),
+            "
             sw $ra, 0x80($sp)
             ",
             code!(save_gp),
@@ -231,7 +253,10 @@ pub extern "C-unwind" fn save_context(f: extern "C" fn(&mut Context, *mut ()), p
             jalr $t9
             nop
             lw $ra, 0x80($sp)
-            add $sp, $sp, 0x90
+            ",
+            #[cfg(target_arch = "mips")]
+            addi!("$sp, $sp, 0x90"),
+            "
             jr $ra
             nop
             .set pop
