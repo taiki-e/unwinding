@@ -1,5 +1,8 @@
 #![doc = include_str!("../README.md")]
-#![cfg_attr(target_arch = "mips", feature(asm_experimental_arch))]
+#![cfg_attr(
+    any(target_arch = "mips", target_arch = "mips32r6"),
+    feature(asm_experimental_arch)
+)]
 #![cfg_attr(
     any(
         feature = "personality",
